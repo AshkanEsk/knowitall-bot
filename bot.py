@@ -121,7 +121,9 @@ def main() -> None:
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("define", define))
     application.add_handler(MessageHandler(filters.COMMAND, unknown))
-    application.post_init(set_commands)
+
+    # Register bot commands
+    #application.post_init(set_commands)
 
     logger.info("Bot started polling...")
     application.run_polling()
