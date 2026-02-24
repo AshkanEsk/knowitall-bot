@@ -9,7 +9,6 @@ class BotMode(Enum):
     """Available bot modes."""
     DICTIONARY = "dictionary"
     GRAMMAR = "grammar"
-    # Add future modes here: TRANSLATION = "translation", etc.
 
 
 @dataclass(frozen=True)
@@ -19,18 +18,17 @@ class BotConfig:
     HUGGINGFACE_API_KEY: str
     HF_OWNER: str
     HF_LLM: str
-    DEFAULT_MODE: BotMode = BotMode.DICTIONARY
+    DEFAULT_MODE: BotMode = BotMode.DICTIONARY  # Hardcoded default
     
     @classmethod
     def from_env(cls) -> "BotConfig":
         """Load configuration from environment variables."""
-        default_mode = os.getenv("DEFAULT_MODE", "dictionary")
         return cls(
             TELEGRAM_TOKEN=os.getenv("TELEGRAM_BOT_TOKEN"),
             HUGGINGFACE_API_KEY=os.getenv("HUGGINGFACE_API_KEY"),
             HF_OWNER=os.getenv("HF_OWNER"),
             HF_LLM=os.getenv("HF_LLM"),
-            DEFAULT_MODE=BotMode(default_mode) if default_mode in [m.value for m in BotMode] else BotMode.DICTIONARY
+            # Remove DEFAULT_MODE from here, use hardcoded default above
         )
     
     def validate(self) -> None:
