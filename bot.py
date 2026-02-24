@@ -3,6 +3,10 @@ import logging
 from telegram import Update, ForceReply
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 from HFAPI import Definer
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import ContextTypes
+from telegram.ext import CallbackQueryHandler
+from telegram import BotCommand
 
 # Environment variables
 TOKEN = os.getenv("TOKEN")       # Telegram bot token
@@ -18,13 +22,53 @@ logger = logging.getLogger(__name__)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
+
+    # Define inline keyboard
+    keyboard = [
+        [InlineKeyboardButton("📖 Define a word", callback_data="define")],
+        [InlineKeyboardButton("✍️ Explain grammar", callback_data="explain")],
+        [InlineKeyboardButton("ℹ️ Help", callback_data="help")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
     await update.message.reply_html(
         rf"Hi {user.mention_html()}! 👋\n\n"
         "I can help you with:\n"
-        "- Word definitions (`/define word`)\n"
-        "- Grammar explanations (`/explain topic`)\n\n"
-        "Type `/help` anytime to see all commands."
+        "- Word definitions\n"
+        "- Grammar explanations\n\n"
+        "Choose an option below:",
+        reply_markup=reply_markup
     )
+
+
+async def set_commands(application):
+    await application.bot.set_my_commands([
+        BotCommand("start", "Start the bot"),
+        BotCommand("help", "Show help"),
+        BotCommand("define", "Define a word"),
+        BotCommand("explain", "Explain grammar")
+    ])
+
+async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    query = update.callback_query
+    await query.answer()
+
+    if query.data == "define":
+        await query.edit_message_text(
+            "To define a word, type: `/define your_word`\nExample: `/define apple`",
+            parse_mode="Markdown"
+        )
+    elif query.data == "explain":
+        await query.edit_message_text(
+            "To explain grammar, type: `/explain topic`\nExample: `/explain present simple`",
+            parse_mode="Markdown"
+        )
+    elif query.data == "help":
+        await query.edit_message_text(
+            "📖 Use `/help` to see all commands.\n\n"
+            "Available:\n- `/start`\n- `/define <word>`\n- `/explain <topic>`\n- `/help`",
+            parse_mode="Markdown"
+        )
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     help_text = (
@@ -73,9 +117,11 @@ def main() -> None:
     application.bot_data["definer"] = Definer(hfapi=HFAPI_TOKEN)
 
     application.add_handler(CommandHandler("start", start))
+    application.add_handler(CallbackQueryHandler(button_handler))
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("define", define))
     application.add_handler(MessageHandler(filters.COMMAND, unknown))
+    application.post_init(set_commands)
 
     logger.info("Bot started polling...")
     application.run_polling()
