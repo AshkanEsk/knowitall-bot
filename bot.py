@@ -1,12 +1,15 @@
 import os
 import logging
-from telegram import Update, ForceReply
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, BotCommand
+from telegram.ext import (
+    Application,
+    CommandHandler,
+    MessageHandler,
+    CallbackQueryHandler,
+    ContextTypes,
+    filters
+)
 from HFAPI import Definer
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ContextTypes
-from telegram.ext import CallbackQueryHandler
-from telegram import BotCommand
 
 # Environment variables
 TOKEN = os.getenv("TOKEN")       # Telegram bot token
