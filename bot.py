@@ -105,6 +105,29 @@ async def define(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         logger.error(f"Error defining word '{word}': {e}")
         await update.message.reply_text("Sorry, I couldn't get a definition.")
 
+async def explain(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not context.args:
+        await update.message.reply_text(
+            "Usage: /explain <grammar_topic>\nExample: `/explain present perfect`",
+            parse_mode="Markdown"
+        )
+        return
+
+    topic = " ".join(context.args)
+    definer_instance = context.bot_data.get("definer")
+
+    if not definer_instance:
+        await update.message.reply_text("Grammar explanation service not available.")
+        return
+
+    await update.message.reply_text(f"Explaining '{topic}'...")
+    try:
+        explanation = definer_instance.grammarexplainer(topic)
+        await update.message.reply_text(explanation)
+    except Exception as e:
+        logger.error(f"Error explaining grammar '{topic}': {e}")
+        await update.message.reply_text("Sorry, I couldn't explain that grammar topic.")
+
 async def unknown(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
         "Sorry, I don’t recognize that command. Type `/help` to see what I can do."
@@ -120,6 +143,7 @@ def main() -> None:
     application.add_handler(CallbackQueryHandler(button_handler))
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("define", define))
+    application.add_handler(CommandHandler("explain", explain))
     application.add_handler(MessageHandler(filters.COMMAND, unknown))
 
     # Register bot commands
