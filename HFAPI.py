@@ -24,6 +24,7 @@ class Definer:
 
     def grammarexplainer(self, topic):
         prompt = f"""Explain the grammar topic: {topic}.
+                     Output ONLY about this.
                      Make it simple and clear for non-native English speakers.
                      Include:
                      - What it means
