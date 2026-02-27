@@ -43,7 +43,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         reply_markup=reply_markup
     )
 
-
 async def set_commands(application):
     await application.bot.set_my_commands([
         BotCommand("start", "Start the bot"),
@@ -74,16 +73,20 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         )
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    help_text = (
-        "📖 *KnowItAll Bot Help*\n\n"
-        "Here’s how you can use me:\n"
-        "- `/start` → Introduction\n"
-        "- `/define <word>` → Get a dictionary-style definition\n"
-        "- `/explain <grammar_topic>` → Learn grammar concepts\n"
-        "- `/help` → Show this help message\n\n"
-        "Example: `/define apple` or `/explain present simple`"
-    )
-    await update.message.reply_text(help_text, parse_mode="Markdown")
+    help_text = """
+                ℹ️ <b>KnowItAll Bot Help</b>
+
+                Here’s how you can use me:
+                • <code>/start</code> → Introduction
+                • <code>/define &lt;word&gt;</code> → Dictionary-style definition
+                • <code>/explain &lt;grammar_topic&gt;</code> → Grammar explanation
+                • <code>/help</code> → Show this help message
+
+                💡 Example:
+                <code>/define apple</code>
+                <code>/explain present perfect</code>
+                """
+    await update.message.reply_text(help_text, parse_mode="HTML")
 
 async def define(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not context.args:
@@ -97,16 +100,22 @@ async def define(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     definer_instance = context.bot_data.get("definer")
 
     if not definer_instance:
-        await update.message.reply_text("Definition service not available.")
+        await update.message.reply_text("⚠️ Definition service not available.")
         return
 
-    await update.message.reply_text(f"Looking up definition for '{word}'...")
+    await update.message.reply_text(f"🔎 Looking up definition for <b>{word}</b>...", parse_mode="HTML")
     try:
         definition = definer_instance.defineWord(word)
-        await update.message.reply_text(definition)
+
+        styled_definition = f"""
+                            📖 <b>Definition of {word}</b>
+
+                            {definition.strip()}
+                            """
+        await update.message.reply_text(styled_definition, parse_mode="HTML")
     except Exception as e:
         logger.error(f"Error defining word '{word}': {e}")
-        await update.message.reply_text("Sorry, I couldn't get a definition.")
+        await update.message.reply_text("❌ Sorry, I couldn't get a definition.")
 
 async def explain(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not context.args:
@@ -120,16 +129,22 @@ async def explain(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     definer_instance = context.bot_data.get("definer")
 
     if not definer_instance:
-        await update.message.reply_text("Grammar explanation service not available.")
+        await update.message.reply_text("⚠️ Grammar explanation service not available.")
         return
 
-    await update.message.reply_text(f"Explaining '{topic}'...")
+    await update.message.reply_text(f"✍️ Explaining <b>{topic}</b>...", parse_mode="HTML")
     try:
         explanation = definer_instance.grammarexplainer(topic)
-        await update.message.reply_text(explanation)
+
+        styled_explanation = f"""
+                            ✍️ <b>Grammar Topic: {topic}</b>
+
+                            {explanation.strip()}
+                            """
+        await update.message.reply_text(styled_explanation, parse_mode="HTML")
     except Exception as e:
         logger.error(f"Error explaining grammar '{topic}': {e}")
-        await update.message.reply_text("Sorry, I couldn't explain that grammar topic.")
+        await update.message.reply_text("❌ Sorry, I couldn't explain that grammar topic.")
 
 async def unknown(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
