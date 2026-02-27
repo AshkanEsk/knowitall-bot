@@ -7,11 +7,14 @@ class Definer:
     def defineWord(self, word):
         prompt = f"""Define {word} in dictionary style.
                      Make it clear for non-native English speakers.
-                     Format:
-                     - Part of speech
-                     - Definitions
-                     - Two examples
-                     - Two synonyms"""
+                     Output ONLY for this word, not for other words.
+                        Format:
+                        - Word
+                        - Part of speech
+                        - Definitions (numbered if more than one)
+                        - Two examples
+                        - Two synonyms
+                    """
         client = InferenceClient(api_key=self.hfapi)
         completion = client.chat.completions.create(
             model="moonshotai/Kimi-K2-Instruct",
